@@ -1,0 +1,149 @@
+.departments-table {
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.departments-table th,
+.departments-table td {
+  border: 1px solid #083ede;
+  padding: 8px;
+  text-align: left;
+}
+
+.departments-table th {
+  background-color: #a5c3fe;
+}
+
+.form-container {
+  width: 50%;
+  border: 1px solid #a5c3fe;
+  padding: 20px;
+  border-radius: 5px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  text-align: left;
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* Ensures padding doesn't affect width */
+  font-size: 16px;
+}
+
+.form-group button {
+  width: 100%;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.form-group button:hover {
+  background-color: #0056b3;
+}
+
+.details-card {
+  width: 50%;
+  border: 1px solid #a5c3fe;
+  padding: 20px;
+  border-radius: 5px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.history-table {
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.history-table th,
+.history-table td {
+  border: 1px solid #083ede;
+  padding: 8px;
+  text-align: left;
+}
+
+.history-table th {
+  background-color: #a5c3fe;
+}
+
+.toggle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.toggle-container button {
+  width: 100%;
+  background-color: #f5f6f8;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.toggle-container button:hover {
+  background-color: #a1ccfb;
+}
+
+/* .Welcome {
+  font-family: sans-serif;
+  padding: 20px;
+}
+
+don't need
+.employee-container {
+  max-width: 800px;
+  margin: auto;
+}
+
+.details-card {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.history-table th,
+.history-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.history-table th {
+  background-color: #a5c3fe;
+} */

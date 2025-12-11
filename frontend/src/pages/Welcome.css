@@ -1,0 +1,52 @@
+.department-table {
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.department-table th,
+.department-table td {
+  border: 1px solid #083ede;
+  padding: 8px;
+  text-align: left;
+}
+
+.department-table th {
+  background-color: #a5c3fe;
+}
+
+/* .Welcome {
+  font-family: sans-serif;
+  padding: 20px;
+}
+
+.employee-container {
+  max-width: 800px;
+  margin: auto;
+}
+
+.details-card {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.history-table th,
+.history-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.history-table th {
+  background-color: #a5c3fe;
+} */
