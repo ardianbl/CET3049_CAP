@@ -1,5 +1,6 @@
 package digipen.cet3049_cap.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,6 +8,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class SimpleEmployeesDTO {
     private Long empNo;
     private String firstName;

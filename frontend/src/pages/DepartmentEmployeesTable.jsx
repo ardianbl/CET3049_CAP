@@ -8,13 +8,13 @@ const DepartmentEmployeesTable = ({ departmentEmployees }) => {
   return (
     <div>
       <h1>Employees in the department</h1>
-      <table className="history-table">
+      <table className="history-table" width={"80%"}>
         <thead>
           <tr>
-            <th>Employee No</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Hire Date</th>
+            <th width={"25%"}>Employee No</th>
+            <th width={"25%"}>First Name</th>
+            <th width={"25%"}>Last Name</th>
+            <th width={"25%"}>Hire Date</th>
           </tr>
         </thead>
         <tbody>

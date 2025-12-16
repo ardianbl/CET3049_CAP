@@ -1,41 +1,69 @@
 package digipen.cet3049_cap.service;
 
-import digipen.cet3049_cap.dto.DepartmentsDTO;
-import digipen.cet3049_cap.dto.DeptEmpDTO;
-import digipen.cet3049_cap.dto.DeptManagerDTO;
-import digipen.cet3049_cap.dto.EmployeesDTO;
-import digipen.cet3049_cap.dto.PromotionDTO;
-import digipen.cet3049_cap.dto.SalariesDTO;
-import digipen.cet3049_cap.dto.SimpleEmployeesDTO;
-import digipen.cet3049_cap.dto.TitlesDTO;
+import digipen.cet3049_cap.dto.*;
+import digipen.cet3049_cap.exception.DepartmentNotFoundException;
 import digipen.cet3049_cap.model.Departments;
 import digipen.cet3049_cap.model.DeptEmp;
 import digipen.cet3049_cap.model.DeptManager;
 import digipen.cet3049_cap.model.Employees;
-import digipen.cet3049_cap.model.Salaries;
-import digipen.cet3049_cap.model.Titles;
+import digipen.cet3049_cap.repositories.DepartmentsRepo;
+import digipen.cet3049_cap.repositories.DeptEmpRepo;
 import digipen.cet3049_cap.repositories.EmployeesRepo;
+import digipen.cet3049_cap.exception.EmployeeNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeesService {
     private final EmployeesRepo employeesRepo;
+    private final DepartmentsRepo departmentsRepo;
+    private final DeptEmpRepo deptEmpRepo;
 
     @Transactional
-    public EmployeesDTO findByEmpNo(Long empNo){
+    public EmployeesDTO findByEmpNo(Long empNo) {
         Employees e = employeesRepo.findById(empNo)
-                .orElseThrow(() -> new RuntimeException());
+                .orElseThrow(() -> new EmployeeNotFoundException());
 
         return EmployeesService.toEmployeesDTO(e);
     }
 
+    @Transactional
+    public Page<SimpleEmployeesDTO> getEmployeesByDeptNo(String deptNo, Pageable pageable) {
+
+        // HANDLE NON-EXISTENT DEPT RECORD
+        if (departmentsRepo.findByDeptNo(deptNo).isEmpty())
+            throw new DepartmentNotFoundException();
+
+        Page<DeptEmp> deptEmpPage = deptEmpRepo.findEmployeesByDepartment(deptNo, pageable);
+
+        // HANDLE PAGE NUMBER OUT OF BOUNDS
+        if (deptEmpPage.isEmpty())
+            throw new NumberFormatException("Page number is out of range.");
+
+        return deptEmpPage.map(deptEmp -> {
+            Employees employees = deptEmp.getEmployee();
+            return new SimpleEmployeesDTO(employees.getEmpNo(), employees.getFirstName(), employees.getLastName(), employees.getHireDate());
+        });
+    }
+
+    @Transactional
+    public void promoteEmployee(Long empNo) {
+        Employees e = employeesRepo.findById(empNo)
+                .orElseThrow(() -> new EmployeeNotFoundException());
+
+
+    }
+
+    // HELPER FUNCTIONS
     public static EmployeesDTO toEmployeesDTO(Employees e) {
         EmployeesDTO dto = new EmployeesDTO();
         dto.setEmpNo(e.getEmpNo());
@@ -104,4 +132,5 @@ public class EmployeesService {
 
         return dto;
     }
+
 }
