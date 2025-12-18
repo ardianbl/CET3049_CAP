@@ -2,23 +2,31 @@ package digipen.cet3049_cap.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class PromotionDTO {
     @NotNull
     private Long empNo;
-    @NotBlank
+
     private String newTitle;
-    @NotNull
-    private String deptNo;
+
+    private String newDeptNo;
+
+    private BigDecimal newSalary;
+
     @NotNull
     private LocalDate startDate;
-    private LocalDate toDate = LocalDate.of(9999, 1, 1);
+
     @NotNull
-    private boolean toManager;
+    private Boolean toManager;
 }

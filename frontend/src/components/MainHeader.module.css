@@ -1,7 +1,7 @@
 .header {
   width: 100%;
   height: 5rem;
-  background-color: #044599;
+  background-color: darkred;
   padding: 0 10%;
   /*position: fixed;*/
 }
@@ -36,4 +36,37 @@
   color: #95bcf0;
   padding-bottom: 0.25rem;
   border-bottom: 4px solid #95bcf0;
+}
+
+/* Snow toggle button styling */
+.snowButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  z-index: 20;
+}
+
+/* Santa animation */
+.santa {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 150px;
+  height: auto;
+  z-index: 10;
+  pointer-events: none;
+  animation: santaBob 2s ease-in-out infinite;
+}
+
+@keyframes santaBob {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }

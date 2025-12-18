@@ -7,6 +7,7 @@ import MainHeader from "./components/MainHeader";
 import NoMatch from "./pages/NoMatch";
 import DepartmentEmployees from "./pages/DepartmentEmployees";
 import PromoteEmployee from "./pages/PromoteEmployee";
+import {SnowProvider} from "./context/SnowContext.jsx";
 
 function App() {
     return (

@@ -6,20 +6,23 @@
   margin-bottom: 30px;
 }
 
-.departments-table th,
+.departments-table th {
+  color: white;
+  padding: 8px;
+  text-align: left;
+  border: 1px solid darkgreen;
+  background-color: forestgreen;
+}
+
 .departments-table td {
-  border: 1px solid #083ede;
+  border: 1px solid darkgreen;
   padding: 8px;
   text-align: left;
 }
 
-.departments-table th {
-  background-color: #a5c3fe;
-}
-
 .form-container {
   width: 50%;
-  border: 1px solid #a5c3fe;
+  border: 1px solid darkgreen;
   padding: 20px;
   border-radius: 5px;
   margin-left: auto;
@@ -48,7 +51,7 @@
 .form-group button {
   width: 100%;
   padding: 12px;
-  background-color: #007bff;
+  background-color: darkgreen;
   color: white;
   border: none;
   border-radius: 4px;
@@ -58,9 +61,32 @@
   transition: background-color 0.3s ease;
 }
 
-.form-group button:hover {
-  background-color: #0056b3;
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* critical */
+  font-size: 16px;
+  background-color: white;
 }
+
+.submit-button {
+  width: 100%;
+  padding: 12px;
+  background-color: darkgreen;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+/*.form-group button:hover {*/
+/*  background-color: #0056b3;*/
+/*}*/
 
 .details-card {
   width: 50%;
@@ -81,15 +107,17 @@
   margin-bottom: 30px;
 }
 
-.history-table th,
-.history-table td {
-  border: 1px solid #083ede;
+.history-table th {
+  color: white;
   padding: 8px;
   text-align: left;
+  border: 1px solid darkgreen;
+  background-color: forestgreen;
 }
-
-.history-table th {
-  background-color: #a5c3fe;
+.history-table td {
+  border: 1px solid darkgreen;
+  padding: 8px;
+  text-align: left;
 }
 
 .toggle-container {
@@ -111,6 +139,14 @@
 
 .toggle-container button:hover {
   background-color: #a1ccfb;
+}
+
+.checkbox-group {
+  font-weight: 600;
+  padding: 8px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: row;
 }
 
 /* .Welcome {

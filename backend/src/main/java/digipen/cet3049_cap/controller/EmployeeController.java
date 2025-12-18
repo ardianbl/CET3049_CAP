@@ -8,11 +8,14 @@ import digipen.cet3049_cap.model.Departments;
 import digipen.cet3049_cap.model.Employees;
 import digipen.cet3049_cap.service.EmployeesService;
 import digipen.cet3049_cap.service.DepartmentsService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -74,13 +78,12 @@ public class EmployeeController {
     }
 
     // ENDPOINT 4 - PROMOTE EMPLOYEE
-    @PostMapping(value = "/employees/promote/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public List<PromotionDTO> promoteEmployee(@PathVariable Long id) {
+    @PostMapping(value = "/promote",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<PromotionDTO>> promoteEmployee(@RequestBody PromotionDTO promotionDTO) {
 
-        List<PromotionDTO> promotionDTOList = new ArrayList<>();
-
-        promotionDTOList.add(employeesService.findByEmpNo(id));
-
-        employeesService.promoteEmployee(id);
+        List<PromotionDTO> result = employeesService.promoteEmployee(promotionDTO);
+        return ResponseEntity.ok(result);
     }
 }

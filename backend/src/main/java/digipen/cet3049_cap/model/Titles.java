@@ -1,6 +1,5 @@
 package digipen.cet3049_cap.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import digipen.cet3049_cap.model.id.TitlesId;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
@@ -9,6 +8,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +20,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Titles {
     @EmbeddedId
     private TitlesId titlesId;
@@ -33,4 +34,9 @@ public class Titles {
     @JoinColumn(name = "emp_no", referencedColumnName = "emp_no",
                 insertable = false, updatable = false)
     private Employees employee;
+
+    public Titles(TitlesId titlesId, LocalDate toDate) {
+        this.titlesId = titlesId;
+        this.toDate = toDate;
+    }
 }

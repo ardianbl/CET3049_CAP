@@ -1,16 +1,41 @@
 import React, {useEffect, useState} from "react";
 import "./Style.css";
 import DepartmentEmployeesTable from "./DepartmentEmployeesTable";
+import DepartmentSelect from "../components/DepartmentSelect.jsx";
 
 function DepartmentEmployees() {
     const [deptNo, setDeptNo] = useState("");
-    const [page, setPage] = useState();
+    const [page, setPage] = useState(1);
     const [employees, setEmployees] = useState([]);
     const [totalPages, setTotalPages] = useState(0);
 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
+
+    const [departments, setDepartments] = useState([]);
+    const [loadingDepts, setLoadingDepts] = useState(true);
+
+
+    useEffect(() => {
+        fetchDepartments();
+    }, []);
+
+    const fetchDepartments = async () => {
+        try {
+            const res = await fetch("http://localhost:8080/api/departments");
+
+            if (!res.ok)
+                throw new Error(await res.text());
+
+            const data = await res.json();
+            setDepartments(data);
+        } catch (e) {
+            setError(e.message);
+        } finally {
+            setLoadingDepts(false);
+        }
+    };
 
     const fetchEmployees = async (page = 1) => {
         if (deptNo.trim() === "") {
@@ -20,7 +45,7 @@ function DepartmentEmployees() {
 
         try {
             const response = await fetch(
-                `http://localhost:8080/api/employees?deptNo=${deptNo}&page=${page}`
+                `http://localhost:8080/api/employees?deptNo=${deptNo}&page=${page || 1}`
             );
 
             if (!response.ok) {
@@ -52,14 +77,16 @@ function DepartmentEmployees() {
             <div className="form-container">
                 <div className="form-group">
                     <label>Enter Department Number:</label>
-                    <input
-                        type="text"
-                        maxLength={4}
-                        pattern={"^[a-zA-Z][0-9]{3}$"}
-                        placeholder="e.g. D001"
-                        value={deptNo}
-                        onChange={(e) => setDeptNo(e.target.value)}
-                    />
+                    <div className="form-group">
+                        <DepartmentSelect
+                            name={"deptNo"}
+                            value={deptNo}
+                            onChange={(e) => setDeptNo(e.target.value)}
+                            departments={departments}
+                            disabled={loadingDepts}
+                            label={"Department"}
+                        />
+                    </div>
                     <label>Enter Page Number:</label>
                     <input
                         type={"number"}
@@ -67,11 +94,19 @@ function DepartmentEmployees() {
                         min={1}
                         // value={page}
                         onChange={e => {
-                            const value = e.target.value;
-                            setPage(value === "" ? 1 : Number(value));
+                            const value = Number(e.target.value);
+                            if (value < 1) {
+                                setError("Invalid page number.");
+                            }
+                            else {
+                                setPage(value);
+                                setError(null);
+                            }
                         }}
                     />
-                    <button onClick={() => fetchEmployees(page)}>Search</button>
+                    <button disabled={!deptNo} onClick={() => fetchEmployees(page)}>
+                        Search
+                    </button>
                 </div>
             </div>
 

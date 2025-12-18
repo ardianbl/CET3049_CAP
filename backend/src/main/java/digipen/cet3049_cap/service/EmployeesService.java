@@ -2,23 +2,26 @@ package digipen.cet3049_cap.service;
 
 import digipen.cet3049_cap.dto.*;
 import digipen.cet3049_cap.exception.DepartmentNotFoundException;
-import digipen.cet3049_cap.model.Departments;
-import digipen.cet3049_cap.model.DeptEmp;
-import digipen.cet3049_cap.model.DeptManager;
-import digipen.cet3049_cap.model.Employees;
-import digipen.cet3049_cap.repositories.DepartmentsRepo;
-import digipen.cet3049_cap.repositories.DeptEmpRepo;
-import digipen.cet3049_cap.repositories.EmployeesRepo;
+import digipen.cet3049_cap.exception.DuplicateException;
+import digipen.cet3049_cap.model.*;
+import digipen.cet3049_cap.model.id.DeptEmpId;
+import digipen.cet3049_cap.model.id.DeptManagerId;
+import digipen.cet3049_cap.model.id.SalariesId;
+import digipen.cet3049_cap.model.id.TitlesId;
+import digipen.cet3049_cap.repositories.*;
 import digipen.cet3049_cap.exception.EmployeeNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +30,9 @@ public class EmployeesService {
     private final EmployeesRepo employeesRepo;
     private final DepartmentsRepo departmentsRepo;
     private final DeptEmpRepo deptEmpRepo;
+    private final DeptManagerRepo deptManagerRepo;
+    private final SalariesRepo salariesRepo;
+    private final TitlesRepo titlesRepo;
 
     @Transactional
     public EmployeesDTO findByEmpNo(Long empNo) {
@@ -56,14 +62,160 @@ public class EmployeesService {
     }
 
     @Transactional
-    public void promoteEmployee(Long empNo) {
-        Employees e = employeesRepo.findById(empNo)
+    public List<PromotionDTO> promoteEmployee(PromotionDTO promotionDTO) {
+
+        final LocalDate OPEN_ENDED = LocalDate.of(9999, 1, 1);
+        LocalDate newStartDate = promotionDTO.getStartDate();
+        LocalDate endDate = newStartDate.minusDays(1);
+
+        List<PromotionDTO> promotionDTOList = new ArrayList<>();
+
+        Long empNo = promotionDTO.getEmpNo();
+        String newTitle = promotionDTO.getNewTitle();
+        String newDeptNo = promotionDTO.getNewDeptNo();
+        BigDecimal newSalary = promotionDTO.getNewSalary();
+        boolean toManager = Boolean.TRUE.equals(promotionDTO.getToManager());
+
+        // ======== VALIDATIONS ========
+        // EMPLOYEE VALIDATION
+        Employees emp = employeesRepo.findById(empNo)
                 .orElseThrow(() -> new EmployeeNotFoundException());
 
+        if (!isCurrentEmployee(empNo))
+            throw new IllegalStateException("Employee is no longer in the company.");
 
+        // DEPARTMENT VALIDATION
+        DeptEmp currDeptEmp = deptEmpRepo
+                .findTopByDeptEmpIdEmpNoOrderByToDateDesc(empNo)
+                .orElseThrow(() -> new IllegalStateException("No Dept Employee record found."));
+
+        newDeptNo = (newDeptNo != null) ? newDeptNo : currDeptEmp.getDeptEmpId().getDeptNo();
+
+        Departments dept = departmentsRepo.findById(newDeptNo)
+                .orElseThrow(() -> new DepartmentNotFoundException());
+
+
+        // GETTING CURRENT EMPLOYEE RECORDS
+        Salaries currSal = salariesRepo
+                .findTopBySalariesIdEmpNoOrderByToDateDesc(empNo)
+                .orElseThrow(() -> new IllegalStateException("No salary record found."));
+        Titles currTtl = titlesRepo
+                .findTopByTitlesIdEmpNoOrderByToDateDesc(empNo)
+                .orElseThrow(() -> new IllegalStateException("No title record found."));
+
+        DeptManager currDeptMan = deptManagerRepo
+                .findTopByDeptManagerIdDeptNoOrderByToDateDesc(newDeptNo)
+                .orElse(null);
+
+        // ======== DUPLICATE GUARDS ========
+        if (Objects.equals(currTtl.getTitlesId().getTitle(), newTitle)
+                && Objects.equals(currSal.getSalary(), newSalary)
+                && Objects.equals(currDeptEmp.getDeptEmpId().getDeptNo(), newDeptNo)
+                && (!toManager || (currDeptMan != null && !currDeptMan.getDeptManagerId().getEmpNo().equals(empNo))))
+        {
+            throw new IllegalStateException("Duplicate promotion data.");
+        }
+
+        // CHECKS FOR CHANGES IN EMPLOYEE RECORD
+        boolean duplicateTitle = false;
+        boolean duplicateDeptEmp =  false;
+        boolean duplicateDeptMan = false;
+
+        for (DeptEmp de : emp.getDeptEmp()) {
+            if (de.getDeptEmpId().getDeptNo().equalsIgnoreCase(newDeptNo)) {
+                duplicateDeptEmp = true;
+                break;
+            }
+        }
+
+        for (DeptManager dm : emp.getDeptManager()) {
+            if (dm.getDeptManagerId().getDeptNo().equalsIgnoreCase(newDeptNo)) {
+                duplicateDeptMan = true;
+                break;
+            }
+        }
+
+        for (Titles t : emp.getTitles()) {
+            if (t.getTitlesId().getTitle().equals(newTitle)) {
+                duplicateTitle = true;
+                break;
+            }
+        }
+
+        // ======== INSERT CURRENT STATE INTO DTO LIST ========
+        promotionDTOList.add(new PromotionDTO(
+                empNo,
+                currTtl.getTitlesId().getTitle(),
+                currDeptEmp.getDeptEmpId().getDeptNo(),
+                currSal.getSalary(),
+                currDeptEmp.getFromDate(),
+                false
+        ));
+
+
+        // ======== UPDATE SALARY ========
+        if (newSalary != null
+                && !Objects.equals(newSalary, currSal.getSalary())
+        ) {
+            salariesRepo.closeDeptEmpRecord(empNo, endDate, OPEN_ENDED);
+
+            SalariesId newSalId = new SalariesId(empNo, newStartDate);
+            Salaries newSal = new Salaries(newSalId, newSalary, OPEN_ENDED);
+            salariesRepo.save(newSal);
+        }
+
+        // ======== UPDATE TITLE ========
+        if (newTitle != null
+                && !Objects.equals(newTitle, currTtl.getTitlesId().getTitle())
+                && !duplicateTitle
+        ) {
+            titlesRepo.closeDeptEmpRecord(empNo, endDate, OPEN_ENDED);
+
+            TitlesId newTtlId = new TitlesId(empNo, newTitle, newStartDate);
+            Titles newTtl = new Titles(newTtlId, OPEN_ENDED);
+            titlesRepo.save(newTtl);
+        }
+
+        // ======== UPDATE DEPT EMPLOYEE ========
+        if (!Objects.equals(newDeptNo, currDeptEmp.getDeptEmpId().getDeptNo())
+                && !duplicateDeptEmp
+        ) {
+            deptEmpRepo.closeDeptEmpRecord(empNo, endDate, OPEN_ENDED);
+
+            DeptEmpId newDeptEmpId = new DeptEmpId(empNo, newDeptNo);
+            DeptEmp newDeptEmp = new DeptEmp(newDeptEmpId, newStartDate, OPEN_ENDED);
+            deptEmpRepo.save(newDeptEmp);
+        }
+
+        // ======== UPDATE DEPT MANAGER ========
+        if (toManager && !duplicateDeptMan) {
+            if (currDeptMan != null &&
+                    currDeptMan.getDeptManagerId().getEmpNo().equals(empNo)) {
+                throw new DuplicateException("Dept Manager");
+            }
+
+            deptManagerRepo.closeDeptEmpRecord(empNo, endDate, OPEN_ENDED);
+
+            DeptManagerId newDeptManId = new DeptManagerId(empNo, newDeptNo);
+            DeptManager newDeptMan = new DeptManager(newDeptManId, newStartDate, OPEN_ENDED);
+            deptManagerRepo.save(newDeptMan);
+        }
+
+        // ======== INSERT NEW DTO INTO DTO LIST ========
+        promotionDTOList.add(promotionDTO);
+
+        return promotionDTOList;
     }
 
     // HELPER FUNCTIONS
+    private boolean isCurrentEmployee(Long empNo) {
+        DeptEmp de = deptEmpRepo
+                .findTopByDeptEmpIdEmpNoOrderByToDateDesc(empNo)
+                .orElseThrow(() -> new IllegalStateException("No Dept Employee record found."));
+
+        return de.getToDate().equals(LocalDate.of(9999, 1, 1));
+    }
+
     public static EmployeesDTO toEmployeesDTO(Employees e) {
         EmployeesDTO dto = new EmployeesDTO();
         dto.setEmpNo(e.getEmpNo());
@@ -108,7 +260,7 @@ public class EmployeesService {
                         .sorted(Comparator.comparing(DeptEmp::getFromDate))
                         .map(d -> {
                             DeptEmpDTO x = new DeptEmpDTO();
-                            x.setDeptNo(d.getId().getDeptNo());
+                            x.setDeptNo(d.getDeptEmpId().getDeptNo());
                             x.setFromDate(d.getFromDate());
                             x.setToDate(d.getToDate());
                             return x;
@@ -122,7 +274,7 @@ public class EmployeesService {
                         .sorted(Comparator.comparing(DeptManager::getFromDate))
                         .map(d -> {
                             DeptManagerDTO x = new DeptManagerDTO();
-                            x.setDeptNo(d.getId().getDeptNo());
+                            x.setDeptNo(d.getDeptManagerId().getDeptNo());
                             x.setFromDate(d.getFromDate());
                             x.setToDate(d.getToDate());
                             return x;

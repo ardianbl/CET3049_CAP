@@ -22,7 +22,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class DeptManager {
     @EmbeddedId
-    private DeptManagerId id;
+    private DeptManagerId deptManagerId;
 
     @Column(name = "from_date")
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -42,4 +42,10 @@ public class DeptManager {
     @JoinColumn(name = "dept_no", referencedColumnName = "dept_no",
                 insertable = false, updatable = false)
     private Departments department;
+
+    public DeptManager(DeptManagerId deptManagerId, LocalDate fromDate, LocalDate toDate) {
+        this.deptManagerId = deptManagerId;
+        this.fromDate = fromDate;
+        this.toDate = toDate;
+    }
 }

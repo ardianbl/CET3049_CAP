@@ -1,112 +1,197 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import "./Style.css";
-import DepartmentEmployeesTable from "./DepartmentEmployeesTable.jsx";
-import PromotionDetails from "./PromotionDetails.jsx";
-
-// import DepartmentEmployeesTable from "./DepartmentEmployeesTable";
+import PromotionResultTable from "./PromotionResultTable.jsx";
+import DepartmentSelect from "../components/DepartmentSelect.jsx";
 
 function PromoteEmployee() {
-    const [employeeNumber, setEmployeeNumber] = useState("");
-    const [newSalary, setNewSalary] = useState("");
-    const [newTitle, setNewTitle] = useState("");
-    const [newDepartmentNumber, setNewDepartmentNumber] = useState("");
-    const [newFromDate, setNewFromDate] = useState("");
-    const [isManager, setIsManager] = useState("");
-    const [selectedOption, setSelectedOption] = useState("No"); // Set initial selected option
-    const [error, setError] = useState(null);
+    const [form, setForm] = useState({
+        empNo: "",
+        newTitle: "",
+        newDeptNo: "",
+        newSalary: "",
+        startDate: "",
+        toManager: false
+    });
 
-    const handleOptionChange = (event) => {
-        setSelectedOption(event.target.value);
+    const [result, setResult] = useState([]);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    const [departments, setDepartments] = useState([]);
+    const [loadingDepts, setLoadingDepts] = useState(true);
+
+
+    useEffect(() => {
+        fetchDepartments();
+    }, []);
+
+    const handleChange = (e) => {
+        const {name, value, type, checked} = e.target;
+
+        setForm(prev => ({
+            ...prev,
+            [name]: type === "checkbox" ? checked : value
+        }));
     };
 
-    const handleSubmit = () => {
+    const fetchDepartments = async () => {
+        try {
+            const res = await fetch("http://localhost:8080/api/departments");
+
+            if (!res.ok)
+                throw new Error(await res.text());
+
+            const data = await res.json();
+            setDepartments(data);
+        } catch (e) {
+            setError(e.message);
+        } finally {
+            setLoadingDepts(false);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch("http://localhost:8080/api/promote", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    ...form,
+                    empNo: Number(form.empNo),
+                    newSalary: Number(form.newSalary)
+                })
+            });
+
+            if (!response.ok) {
+                const msg = await response.text();
+                throw new Error(msg);
+            }
+
+            const data = await response.json();
+            setResult(data);   // <-- List<PromotionDTO>
+
+        } catch (err) {
+            setError(err.message);
+            setResult([]);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <div>
-            <div className="form-container">
+            <form className="form-container" onSubmit={handleSubmit}>
+
                 <div className="form-group">
-                    <label>Enter Employee Number:</label>
+                    <label htmlFor="empNo">Employee Number</label>
                     <input
+                        id="empNo"
+                        name="empNo"
                         type="number"
-                        min={1}
-                        max={99999999999}
-                        placeholder={"e.g. 10001"}
-                        value={employeeNumber}
-                        onChange={(e) => setEmployeeNumber(e.target.value)}
-                        required={true}
+                        placeholder="e.g. 10001"
+                        value={form.empNo}
+                        onChange={handleChange}
+                        required
                     />
-                    <label>Enter New Salary:</label>
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="newTitle">New Title</label>
                     <input
-                        type="number"
-                        min={1}
-                        max={99999999999}
-                        placeholder="e.g. $100.00"
-                        value={newSalary}
-                        onChange={(e) => setNewSalary(e.target.value)}
-                        required={true}
-                    />
-                    <label>Enter New Title:</label>
-                    <input
+                        id="newTitle"
+                        name="newTitle"
                         type="text"
                         maxLength={50}
-                        value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
-                        required={true}
+                        placeholder="e.g. Manager"
+                        value={form.newTitle}
+                        onChange={handleChange}
+                        required
                     />
-                    <label>Enter New Department Number:</label>
-                    <input
-                        type="text"
-                        maxLength={4}
-                        pattern={"^[a-zA-Z][0-9]{3}$"}
-                        placeholder="e.g. D001 (optional)"
-                        value={newDepartmentNumber}
-                        onChange={(e) => setNewDepartmentNumber(e.target.value)}
-                    />
-                    <label>Enter Starting Date:</label>
-                    <input
-                        type={"date"}
-                        placeholder="In YYYY-MM-DD format, e.g. 2025-12-31"
-                        value={newFromDate}
-                        onChange={(e) => setNewFromDate(e.target.value)}
-                    />
-
-                    <div style={{display: "flex", gap: "30px"}}>
-                        <label>Promote to Manager:</label>
-                        <div>
-                            <input
-                                type="radio"
-                                id="Yes"
-                                name="isManager"
-                                value="Yes"
-                                checked={selectedOption === "Yes"}
-                                onChange={handleOptionChange}
-                            />
-                            <label htmlFor="Yes">Yes</label>
-                        </div>
-                        <div>
-                            <input
-                                type="radio"
-                                id="No"
-                                name="isManager"
-                                value="No"
-                                checked={selectedOption === "No"}
-                                onChange={handleOptionChange}
-                            />
-                            <label htmlFor="No">No</label>
-                        </div>
-                    </div>
-                    <button onClick={handleSubmit}>Submit</button>
                 </div>
-            </div>
+
+                <div className="form-group">
+                    <label htmlFor="newDeptNo">New Department (optional)</label>
+
+                    <DepartmentSelect
+                        name={"newDeptNo"}
+                        value={form.newDeptNo}
+                        onChange={handleChange}
+                        departments={departments}
+                        disabled={loadingDepts}
+                        label={"New Department"}
+                    />
+                </div>
+
+
+                <div className="form-group">
+                    <label htmlFor="newSalary">New Salary</label>
+                    <input
+                        id="newSalary"
+                        name="newSalary"
+                        type="number"
+                        step="0.01"
+                        placeholder="e.g. 95000.00"
+                        value={form.newSalary}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="startDate">Effective Start Date</label>
+                    <input
+                        id="startDate"
+                        name="startDate"
+                        type="date"
+                        value={form.startDate}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+
+                <div className="checkbox-group">
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="toManager"
+                            checked={form.toManager}
+                            onChange={handleChange}
+                        />
+                        Promote to Manager
+                    </label>
+                </div>
+
+                <button
+                    className={"submit-button"}
+                    type="submit"
+                    disabled={loading}
+                >
+                    {loading ? "Processing..." : "Submit Promotion"}
+                </button>
+
+            </form>
+
 
             {error && <p style={{color: "red"}}>{error}</p>}
 
-            <>
-                <PromotionDetails
-                    employee={employees}
-                    disabled={loading}/>
-            </>
+            {result.length === 2 && (
+                <>
+                    <h3>Promotion Request Successful</h3>
+                    <h3>Employee #{result[0].empNo}</h3>
+
+                    <PromotionResultTable
+                        before={result[0]}
+                        after={result[1]}
+                    />
+                </>
+            )}
+
         </div>
     );
 }

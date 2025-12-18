@@ -6,15 +6,19 @@
   margin-bottom: 30px;
 }
 
-.department-table th,
+.department-table th {
+  border: 1px solid darkgreen;
+  padding: 8px;
+  text-align: left;
+}
 .department-table td {
-  border: 1px solid #083ede;
+  border: 1px solid darkgreen;
   padding: 8px;
   text-align: left;
 }
 
 .department-table th {
-  background-color: #a5c3fe;
+  background-color: darkgreen;
 }
 
 /* .Welcome {
