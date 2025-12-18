@@ -12,15 +12,14 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.Optional;
 
+/**
+ * Repository for accessing {@link digipen.cet3049_cap.model.DeptEmp} records.
+ */
 @Repository
 public interface DeptEmpRepo extends JpaRepository<DeptEmp, Integer> {
 
     @Query("SELECT de FROM DeptEmp de WHERE de.deptEmpId.deptNo = :deptNo")
     Page<DeptEmp> findEmployeesByDepartment(@Param("deptNo") String deptNo, Pageable pageable);
-
-//    @Query("SELECT de FROM DeptEmp de WHERE de.deptEmpId.empNo = :empNo " +
-//            "ORDER BY de.toDate DESC")
-//    DeptEmp getLatestDeptEmp(@Param("empNo") Long empNo);
 
     Optional<DeptEmp> findTopByDeptEmpIdEmpNoOrderByToDateDesc(Long empNo);
 

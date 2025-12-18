@@ -8,6 +8,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Repository for accessing {@link digipen.cet3049_cap.model.Departments} entities.
+ */
 @Repository
 public interface DepartmentsRepo extends JpaRepository<Departments, String> {
     @Query("SELECT d FROM Departments d WHERE d.deptNo = :deptNo")

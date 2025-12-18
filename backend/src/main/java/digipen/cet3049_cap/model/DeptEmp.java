@@ -15,6 +15,9 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * JPA entity representing an employee's department assignment (dept_emp table).
+ */
 @Entity
 @Table(name = "dept_emp")
 @Getter
@@ -22,23 +25,27 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeptEmp {
+    /** Composite id (empNo + deptNo) */
     @EmbeddedId
     private DeptEmpId deptEmpId;
 
+    /** Assignment start date */
     @Column(name = "from_date")
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate fromDate;
 
+    /** Assignment end date */
     @Column(name = "to_date")
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate toDate;
 
-    // relationship with other tables
+    /** Employee reference */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "emp_no", referencedColumnName = "emp_no",
                 insertable = false, updatable = false)
     private Employees employee;
 
+    /** Department reference */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dept_no", referencedColumnName = "dept_no",
                 insertable = false, updatable = false)

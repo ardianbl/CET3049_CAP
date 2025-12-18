@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+/**
+ * Embeddable composite key for {@link digipen.cet3049_cap.model.DeptManager}.
+ */
 @Embeddable
 @Getter
 @EqualsAndHashCode

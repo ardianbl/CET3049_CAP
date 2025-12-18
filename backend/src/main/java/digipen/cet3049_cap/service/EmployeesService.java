@@ -1,14 +1,30 @@
 package digipen.cet3049_cap.service;
 
-import digipen.cet3049_cap.dto.*;
+import digipen.cet3049_cap.dto.DeptEmpDTO;
+import digipen.cet3049_cap.dto.DeptManagerDTO;
+import digipen.cet3049_cap.dto.EmployeesDTO;
+import digipen.cet3049_cap.dto.PromotionDTO;
+import digipen.cet3049_cap.dto.SalariesDTO;
+import digipen.cet3049_cap.dto.SimpleEmployeesDTO;
+import digipen.cet3049_cap.dto.TitlesDTO;
 import digipen.cet3049_cap.exception.DepartmentNotFoundException;
 import digipen.cet3049_cap.exception.DuplicateException;
-import digipen.cet3049_cap.model.*;
+import digipen.cet3049_cap.model.Departments;
+import digipen.cet3049_cap.model.DeptEmp;
+import digipen.cet3049_cap.model.DeptManager;
+import digipen.cet3049_cap.model.Employees;
+import digipen.cet3049_cap.model.Salaries;
+import digipen.cet3049_cap.model.Titles;
 import digipen.cet3049_cap.model.id.DeptEmpId;
 import digipen.cet3049_cap.model.id.DeptManagerId;
 import digipen.cet3049_cap.model.id.SalariesId;
 import digipen.cet3049_cap.model.id.TitlesId;
-import digipen.cet3049_cap.repositories.*;
+import digipen.cet3049_cap.repositories.DepartmentsRepo;
+import digipen.cet3049_cap.repositories.DeptEmpRepo;
+import digipen.cet3049_cap.repositories.DeptManagerRepo;
+import digipen.cet3049_cap.repositories.EmployeesRepo;
+import digipen.cet3049_cap.repositories.SalariesRepo;
+import digipen.cet3049_cap.repositories.TitlesRepo;
 import digipen.cet3049_cap.exception.EmployeeNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +40,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Service layer providing business logic and transactional operations for employees,
+ * including retrieval and promotion workflows that update related records.
+ */
 @Service
 @RequiredArgsConstructor
 public class EmployeesService {
@@ -34,6 +54,12 @@ public class EmployeesService {
     private final SalariesRepo salariesRepo;
     private final TitlesRepo titlesRepo;
 
+
+    /**
+     * Find full employee DTO by employee number.
+     * @param empNo employee id
+     * @return {@link digipen.cet3049_cap.dto.EmployeesDTO}
+     */
     @Transactional
     public EmployeesDTO findByEmpNo(Long empNo) {
         Employees e = employeesRepo.findById(empNo)
@@ -42,6 +68,12 @@ public class EmployeesService {
         return EmployeesService.toEmployeesDTO(e);
     }
 
+    /**
+     * Retrieve a paginated list of simple employee DTOs for the specified department.
+     * @param deptNo department identifier
+     * @param pageable pagination configuration
+     * @return page of {@link digipen.cet3049_cap.dto.SimpleEmployeesDTO}
+     */
     @Transactional
     public Page<SimpleEmployeesDTO> getEmployeesByDeptNo(String deptNo, Pageable pageable) {
 
@@ -61,6 +93,13 @@ public class EmployeesService {
         });
     }
 
+    /**
+     * Perform a promotion operation for an employee updating titles, salaries,
+     * department assignments and manager roles as requested.
+     * @param promotionDTO promotion request data
+     * @return list of {@link digipen.cet3049_cap.dto.PromotionDTO} representing
+     *         previous and new promotion states
+     */
     @Transactional
     public List<PromotionDTO> promoteEmployee(PromotionDTO promotionDTO) {
 
@@ -208,6 +247,12 @@ public class EmployeesService {
     }
 
     // HELPER FUNCTIONS
+    /**
+     * Determine whether the employee currently works at the company by
+     * checking whether their latest dept_emp record has the open-ended date.
+     * @param empNo employee number
+     * @return true if the employee's latest dept_emp toDate equals the open-ended sentinel
+     */
     private boolean isCurrentEmployee(Long empNo) {
         DeptEmp de = deptEmpRepo
                 .findTopByDeptEmpIdEmpNoOrderByToDateDesc(empNo)
@@ -216,6 +261,12 @@ public class EmployeesService {
         return de.getToDate().equals(LocalDate.of(9999, 1, 1));
     }
 
+    /**
+     * Map an {@link digipen.cet3049_cap.model.Employees} entity to an
+     * {@link digipen.cet3049_cap.dto.EmployeesDTO} including related lists.
+     * @param e employee entity
+     * @return mapped {@link digipen.cet3049_cap.dto.EmployeesDTO}
+     */
     public static EmployeesDTO toEmployeesDTO(Employees e) {
         EmployeesDTO dto = new EmployeesDTO();
         dto.setEmpNo(e.getEmpNo());

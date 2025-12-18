@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+/**
+ * Embeddable composite key for {@link digipen.cet3049_cap.model.Salaries}.
+ */
 @Embeddable
 @Getter
 @EqualsAndHashCode

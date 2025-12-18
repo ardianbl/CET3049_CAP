@@ -8,17 +8,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repository for accessing {@link digipen.cet3049_cap.model.DeptManager} records.
+ */
 @Repository
 public interface DeptManagerRepo extends JpaRepository<DeptManager, Long> {
-    @Query("SELECT dm FROM DeptManager dm WHERE dm.deptManagerId.empNo = :empNo")
-    List<DeptManager> findByEmpNo(@Param("empNo") Long empNo);
-
-//    @Query("SELECT dm FROM DeptManager dm WHERE dm.deptManagerId.deptNo = :deptNo " +
-//            "ORDER BY dm.toDate DESC LIMIT 1")
-//    DeptManager getLatestDeptManager(@Param("deptNo") String deptNo);
 
     Optional<DeptManager> findTopByDeptManagerIdDeptNoOrderByToDateDesc(String deptNo);
 

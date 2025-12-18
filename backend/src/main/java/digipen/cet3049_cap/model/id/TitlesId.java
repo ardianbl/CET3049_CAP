@@ -1,6 +1,5 @@
 package digipen.cet3049_cap.model.id;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
@@ -11,6 +10,9 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+/**
+ * Embeddable composite key for {@link digipen.cet3049_cap.model.Titles}.
+ */
 @Embeddable
 @Getter
 @EqualsAndHashCode

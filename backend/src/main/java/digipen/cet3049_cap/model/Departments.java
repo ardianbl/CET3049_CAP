@@ -13,23 +13,30 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * JPA entity representing the departments table.
+ */
 @Entity
 @Table(name = "departments")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Departments {
+    /** Department identifier (primary key) */
     @Id
     @Column(name = "dept_no")
     private String deptNo;
 
+    /** Department name */
     @Column(name = "dept_name")
     private String deptName;
 
+    /** Employee assignments for this department */
     @OneToMany(fetch = FetchType.LAZY)
     @JsonIgnore
     private List<DeptEmp> deptEmp;
 
+    /** Manager assignments for this department */
     @OneToMany(fetch = FetchType.LAZY)
     @JsonIgnore
     private List<DeptManager> deptManager;

@@ -16,6 +16,9 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * JPA entity representing a salary record for an employee (amount + date range).
+ */
 @Entity
 @Table(name = "salaries")
 @Getter
@@ -23,17 +26,19 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Salaries {
+    /** Composite id (empNo + fromDate) */
     @EmbeddedId
     private SalariesId salariesId;
 
+    /** Salary amount */
     @Column(name = "salary", length = 11)
     private BigDecimal salary;
 
+    /** Salary end date */
     @Column(name = "to_date")
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate toDate;
 
-    // relationship with Employees table
+    /** Employee reference */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "emp_no", referencedColumnName = "emp_no",
                 insertable = false, updatable = false)

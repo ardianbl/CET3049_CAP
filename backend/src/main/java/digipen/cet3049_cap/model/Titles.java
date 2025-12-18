@@ -15,6 +15,9 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * JPA entity representing a title record for an employee (title + date range).
+ */
 @Entity
 @Table(name = "titles")
 @Getter
@@ -22,14 +25,15 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Titles {
+    /** Composite key (empNo, title, fromDate) */
     @EmbeddedId
     private TitlesId titlesId;
 
+    /** Title end date */
     @Column(name = "to_date")
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate toDate;
 
-    // relationship with Employees table
+    /** Employee reference */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "emp_no", referencedColumnName = "emp_no",
                 insertable = false, updatable = false)
