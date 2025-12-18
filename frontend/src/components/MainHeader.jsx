@@ -13,7 +13,7 @@ const MainHeader = () => {
 
             {/* Santa Claus image at bottom-right */}
             <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Merry_Old_Santa_Claus_by_Thomas_Nast.jpg/250px-Merry_Old_Santa_Claus_by_Thomas_Nast.jpg"
+                src="/7901609.jpg"
                 alt="Santa Claus"
                 className={classes.santa}
             />
